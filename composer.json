@@ -1,0 +1,20 @@
+{
+    "name": "luffyzhao/error-handler",
+    "authors": [
+        {
+            "name": "Luffy Zhao",
+            "email": "luffhzhao@vip.126.com"
+        }
+    ],
+    "require": {
+        "filp/whoops" : "1.1.10",
+        "ramsey/uuid": "^3.8"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "ErrorHandler\\": "src/"
+        }
+    }
+}
