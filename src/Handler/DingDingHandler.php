@@ -38,9 +38,19 @@ class DingDingHandler extends Handler
         $build = new MarkdownBuild($exception, $inspector);
         $markdown = $build->handle();
 
-        $this->requestAsync($markdown);
+        $response = $this->requestAsync($markdown);
 
         echo $this->getView(json_encode($markdown));
+
+        if($response->getStatusCode() === "200"){
+            echo "<!-- 推送钉钉成功 -->";
+        }else{
+            echo "<!-- ";
+            echo $response->getStatusCode();
+            echo $response->getBody();
+            echo " -->";
+        }
+
         return Handler::DONE;
     }
 
@@ -79,6 +89,6 @@ class DingDingHandler extends Handler
             'verify' => false
         ]);
 
-        return 200 === $response->getStatusCode();
+        return $response;
     }
 }

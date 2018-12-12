@@ -9,6 +9,8 @@
 namespace ErrorHandler\Util;
 
 
+use Whoops\Exception\Frame;
+
 class MarkdownBuild
 {
     /**
@@ -45,7 +47,7 @@ class MarkdownBuild
     {
         return [
             '{{ http_url }}' => $this->isHttps() ? 'https' : 'http' . '://'.$_SERVER['SERVER_NAME'].':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"],
-            '{{ get }}' => $this->arrayToString($_GET),
+            '{{ get }}' => $_SERVER["REQUEST_URI"],
             '{{ post }}' => $this->arrayToString($_POST),
         ];
     }
@@ -56,16 +58,42 @@ class MarkdownBuild
      */
     protected function getErrorFileInfo()
     {
-        $frame = $this->inspector->getFrames()->offsetGet(0);
-        $line = $frame->getLine();
+        $frames = $this->inspector->getFrames();
         return [
-            '{{ file }}' => $frame->getFile(),
-            '{{ line }}' => $line,
-            '{{ fileCode }}' => implode("\n" ,$frame->getFileLines($line - 8, $line + 10)),
-            '{{ args }}' => $this->arrayToString($frame->getArgs()),
+            '{{ files }}' => $this->getFiles($frames),
         ];
     }
 
+    /**
+     * @param $frames
+     * @return string
+     */
+    protected function getFiles($frames){
+        $string = "\n";
+        foreach ($frames as $key=>$frame){
+            $string .= $this->getFrameInfo($frame);
+
+        }
+        return $string;
+    }
+
+    /**
+     * @param Frame $frame
+     * @return string
+     */
+    protected function getFrameInfo(Frame $frame){
+        $string = ">> 文件: {$frame->getFile(true)} : {$frame->getLine()} \n\n";
+        if(($class = $frame->getClass()) !== null){
+            $string .= ">>> {$class}::";
+        }
+        if(($function = $frame->getFunction()) !== null){
+            $string .= $class === null ? ">>> {$function}" : "{$function}";
+            if($args = $frame->getArgs()){
+                $string .= '(' . implode(',', $args) . ')';
+            }
+        }
+        return $string . "\n\n";
+    }
     /**
      * @return array
      */
@@ -81,12 +109,11 @@ class MarkdownBuild
      * @return string
      */
     protected function arrayToString($array){
-        $string = "\n";
-
-        foreach ($array as $key=>$value){
-            $string .=  '>> **'.$key .'**'.' : `'.var_export($value, true).'` ' . "\n";
+        $string = http_build_query($array);
+        if(mb_strlen($string) > 2000){
+            $string = substr($string, 0, 2000) . '...';
         }
-        return $string . "\n";
+        return "\n" . http_build_query($array) . "\n\n";
     }
 
     /**
