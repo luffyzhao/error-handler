@@ -17,11 +17,14 @@ class DingDingHandler extends Handler
 {
     protected $accessToken;
 
+    protected $debug;
+
     protected $url = 'https://oapi.dingtalk.com/robot/send?access_token=';
 
-    public function __construct($accessToken)
+    public function __construct($accessToken, $debug = false)
     {
         $this->accessToken = $accessToken;
+        $this->debug = $debug;
     }
 
     /**
@@ -34,10 +37,26 @@ class DingDingHandler extends Handler
 
         $build = new MarkdownBuild($exception, $inspector);
         $markdown = $build->handle();
+
         $this->requestAsync($markdown);
+
+        echo $this->getView(\GuzzleHttp\json_encode($markdown));
         return Handler::DONE;
     }
 
+    /**
+     * @param $markdown
+     * @return false|mixed|string
+     */
+    protected function getView($markdown){
+        if($this->debug){
+            $view = file_get_contents(__DIR__ . '/../Resources/Html/Markdown.html');
+            $view = str_ireplace('{{-- markdown --}}', $markdown, $view);
+        }else{
+            $view = file_get_contents(__DIR__ . '/../Resources/Html/Production.html');
+        }
+        return $view;
+    }
     /**
      * @param $markdown
      * @return bool
