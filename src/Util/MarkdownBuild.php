@@ -46,9 +46,10 @@ class MarkdownBuild
     protected function getDataInfo()
     {
         return [
-            '{{ http_url }}' => ($this->isHttps() ? 'https' : 'http') . '://'.$_SERVER['SERVER_NAME'].':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"],
+            '{{ http_url }}' => $_SERVER['REQUEST_SCHEME'] . '://'.$_SERVER['SERVER_NAME'].':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"],
             '{{ get }}' => $_SERVER["QUERY_STRING"],
             '{{ post }}' => $this->arrayToString($_POST),
+            '{{ referer }}' => $_SERVER['HTTP_REFERER']
         ];
     }
 
@@ -89,6 +90,10 @@ class MarkdownBuild
         if(($function = $frame->getFunction()) !== null){
             $string .= $class === null ? ">>> {$function}" : "{$function}";
             if($args = $frame->getArgs()){
+
+                foreach ($args as $key => $value){
+                    $args[$key] = is_string($value) ? $value : var_export($value, true);
+                }
                 $string .= '(' . implode(',', $args) . ')';
             }
         }
