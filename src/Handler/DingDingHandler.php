@@ -40,7 +40,7 @@ class DingDingHandler extends Handler
 
         $this->requestAsync($markdown);
 
-        echo $this->getView(\GuzzleHttp\json_encode($markdown));
+        echo $this->getView(json_encode($markdown));
         return Handler::DONE;
     }
 
@@ -66,7 +66,7 @@ class DingDingHandler extends Handler
         $client = new Client();
 
         $response = $client->request('post', $this->url . $this->accessToken, [
-            'body' => \GuzzleHttp\json_encode([
+            'body' => json_encode([
                 'msgtype' => 'markdown',
                 'markdown' => [
                     'title' => 'php代码错误信息',
