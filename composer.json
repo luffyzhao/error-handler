@@ -10,7 +10,8 @@
         "filp/whoops" : "1.1.10",
         "php": ">=5.4",
         "psr/log": "^1.1",
-        "guzzlehttp/guzzle": "=4.2.4"
+        "guzzlehttp/guzzle": "=4.2.4",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {

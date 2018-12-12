@@ -65,7 +65,7 @@ class DingDingHandler extends Handler
     public function requestAsync($markdown){
         $client = new Client();
 
-        $response = $client->request('post', $this->url . $this->accessToken, [
+        $response = $client->post($this->url . $this->accessToken, [
             'body' => json_encode([
                 'msgtype' => 'markdown',
                 'markdown' => [
