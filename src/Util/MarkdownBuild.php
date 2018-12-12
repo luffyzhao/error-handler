@@ -82,8 +82,9 @@ class MarkdownBuild
      */
     protected function arrayToString($array){
         $string = "\n";
+
         foreach ($array as $key=>$value){
-            $string .=  '> **'.$key .'**'.' : `'.\GuzzleHttp\json_encode($value).'` ' . "\n";
+            $string .=  '>> **'.$key .'**'.' : `'.var_export($value, true).'` ' . "\n";
         }
         return $string . "\n";
     }

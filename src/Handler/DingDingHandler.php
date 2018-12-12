@@ -40,6 +40,7 @@ class DingDingHandler extends Handler
 
     /**
      * @param $markdown
+     * @return bool
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function requestAsync($markdown){
@@ -59,6 +60,6 @@ class DingDingHandler extends Handler
             'verify' => false
         ]);
 
-        echo $response->getBody();
+        return 200 === $response->getStatusCode();
     }
 }
