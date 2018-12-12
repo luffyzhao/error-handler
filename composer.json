@@ -8,9 +8,9 @@
     ],
     "require": {
         "filp/whoops" : "1.1.10",
-        "ramsey/uuid": "^3.8"
-    },
-    "require-dev": {
+        "aliyun/aliyun-tablestore-sdk-php": "v4.1.0",
+        "php": ">=5.4",
+        "psr/log": "^1.1"
     },
     "autoload": {
         "psr-4": {
