@@ -46,10 +46,10 @@ class MarkdownBuild
     protected function getDataInfo()
     {
         return [
-            '{{ http_url }}' => $_SERVER['REQUEST_SCHEME'] . '://'.$_SERVER['SERVER_NAME'].':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"],
-            '{{ get }}' => $_SERVER["QUERY_STRING"],
+            '{{ http_url }}' => $this->getAddressUrl(),
+            '{{ get }}' => isset($_SERVER["QUERY_STRING"]) ? $_SERVER["QUERY_STRING"] : '',
             '{{ post }}' => $this->arrayToString($_POST),
-            '{{ referer }}' => $_SERVER['HTTP_REFERER']
+            '{{ referer }}' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''
         ];
     }
 
@@ -69,9 +69,10 @@ class MarkdownBuild
      * @param $frames
      * @return string
      */
-    protected function getFiles($frames){
+    protected function getFiles($frames)
+    {
         $string = "\n";
-        foreach ($frames as $key=>$frame){
+        foreach ($frames as $key => $frame) {
             $string .= $this->getFrameInfo($frame);
 
         }
@@ -82,16 +83,17 @@ class MarkdownBuild
      * @param Frame $frame
      * @return string
      */
-    protected function getFrameInfo(Frame $frame){
+    protected function getFrameInfo(Frame $frame)
+    {
         $string = ">> 文件: {$frame->getFile(true)} : {$frame->getLine()} \n\n";
-        if(($class = $frame->getClass()) !== null){
+        if (($class = $frame->getClass()) !== null) {
             $string .= ">>> {$class}::";
         }
-        if(($function = $frame->getFunction()) !== null){
+        if (($function = $frame->getFunction()) !== null) {
             $string .= $class === null ? ">>> {$function}" : "{$function}";
-            if($args = $frame->getArgs()){
+            if ($args = $frame->getArgs()) {
 
-                foreach ($args as $key => $value){
+                foreach ($args as $key => $value) {
                     $args[$key] = is_string($value) ? $value : var_export($value, true);
                 }
                 $string .= '(' . implode(',', $args) . ')';
@@ -99,10 +101,12 @@ class MarkdownBuild
         }
         return $string . "\n\n";
     }
+
     /**
      * @return array
      */
-    protected function getExceptionInfo(){
+    protected function getExceptionInfo()
+    {
         return [
             '{{ messages }}' => $this->exception->getMessage(),
             '{{ code }}' => $this->exception->getCode()
@@ -113,23 +117,33 @@ class MarkdownBuild
      * @param $array
      * @return string
      */
-    protected function arrayToString($array){
+    protected function arrayToString($array)
+    {
         $string = http_build_query($array);
-        if(mb_strlen($string) > 2000){
+        if (mb_strlen($string) > 2000) {
             $string = substr($string, 0, 2000) . '...';
         }
         return "\n" . http_build_query($array) . "\n\n";
     }
 
     /**
+     * @return string
+     */
+    protected function getAddressUrl()
+    {
+        return ($this->isHttps() ? "https://" : "http://") . $_SERVER['SERVER_NAME'] . ':' . $_SERVER["SERVER_PORT"] . $_SERVER["REQUEST_URI"];
+    }
+
+    /**
      * @return bool
      */
-    function isHttps() {
-        if ( !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') {
+    protected function isHttps()
+    {
+        if (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') {
             return true;
-        } elseif ( isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ) {
+        } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
             return true;
-        } elseif ( !empty($_SERVER['HTTP_FRONT_END_HTTPS']) && strtolower($_SERVER['HTTP_FRONT_END_HTTPS']) !== 'off') {
+        } elseif (!empty($_SERVER['HTTP_FRONT_END_HTTPS']) && strtolower($_SERVER['HTTP_FRONT_END_HTTPS']) !== 'off') {
             return true;
         }
         return false;
